@@ -6,13 +6,35 @@ class DataLoader():
     """A class for loading and transforming data for the lstm model"""
 
     def __init__(self, filename, split, cols):
-        dataframe = pd.read_csv(filename)
+        #dataframe = pd.read_csv(filename)
+
+        dataframe = pd.read_csv(filename, sep=",")
+        dataframe.rename(
+            columns={"<DATE>": "Date", "<TIME>": "Time", "<OPEN>": "Open", "<HIGH>": "High", "<LOW>": "Low",
+                     "<CLOSE>": "Close", "<VOL>": "Volume"}, inplace=True)
+        dataframe['Date'] = pd.to_datetime(dataframe['Date'], format='%Y%m%d')
+        dataframe = dataframe.drop('Time', 1)
+
         i_split = int(len(dataframe) * split)
         self.data_train = dataframe.get(cols).values[:i_split]
         self.data_test  = dataframe.get(cols).values[i_split:]
         self.len_train  = len(self.data_train)
         self.len_test   = len(self.data_test)
         self.len_train_windows = None
+        print("len(dataframe) == ", len(dataframe))
+        print("len(self.data_train) == ", len(self.data_train))
+        print("len(self.data_test) == ", len(self.data_test))
+
+    def de_normalise_predicted(self, price_1st, _data):
+        return (_data + 1) * price_1st
+
+    def get_last_data(self, seq_len, normalise):
+        last_data = self.data_test[seq_len:]
+        data_windows = np.array(last_data).astype(float)
+        #data_windows = np.array([data_windows])
+        #data_windows = self.normalise_windows(data_windows, single_window=False) if normalise else data_windows
+        data_windows = self.normalise_windows(data_windows, single_window=True) if normalise else data_windows
+        return data_windows
 
     def get_test_data(self, seq_len, normalise):
         '''
@@ -21,8 +43,25 @@ class DataLoader():
         load data, otherwise reduce size of the training split.
         '''
         data_windows = []
-        for i in range(self.len_test - seq_len):
+        for i in range(self.len_test - seq_len + 1):
             data_windows.append(self.data_test[i:i+seq_len])
+
+        data_windows = np.array(data_windows).astype(float)
+        data_windows = self.normalise_windows(data_windows, single_window=False) if normalise else data_windows
+
+        x = data_windows[:, :-1]
+        y = data_windows[:, -1, [0]]
+        return x,y
+
+    def get_train_data2(self, seq_len, normalise):
+        '''
+        Create x, y test data windows
+        Warning: batch method, not generative, make sure you have enough memory to
+        load data, otherwise reduce size of the training split.
+        '''
+        data_windows = []
+        for i in range(self.len_train - seq_len + 1):
+            data_windows.append(self.data_train[i:i+seq_len])
 
         data_windows = np.array(data_windows).astype(float)
         data_windows = self.normalise_windows(data_windows, single_window=False) if normalise else data_windows
@@ -39,7 +78,7 @@ class DataLoader():
         '''
         data_x = []
         data_y = []
-        for i in range(self.len_train - seq_len):
+        for i in range(self.len_train - seq_len + 1):
             x, y = self._next_window(i, seq_len, normalise)
             data_x.append(x)
             data_y.append(y)
@@ -48,11 +87,11 @@ class DataLoader():
     def generate_train_batch(self, seq_len, batch_size, normalise):
         '''Yield a generator of training data from filename on given list of cols split for train/test'''
         i = 0
-        while i < (self.len_train - seq_len):
+        while i < (self.len_train - seq_len + 1):
             x_batch = []
             y_batch = []
             for b in range(batch_size):
-                if i >= (self.len_train - seq_len):
+                if i >= (self.len_train - seq_len + 1):
                     # stop-condition for a smaller final batch if data doesn't divide evenly
                     yield np.array(x_batch), np.array(y_batch)
                     i = 0

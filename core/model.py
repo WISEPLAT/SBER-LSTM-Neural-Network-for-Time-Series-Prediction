@@ -37,7 +37,10 @@ class Model():
 			if layer['type'] == 'dropout':
 				self.model.add(Dropout(dropout_rate))
 
-		self.model.compile(loss=configs['model']['loss'], optimizer=configs['model']['optimizer'])
+		#self.model.compile(loss=configs['model']['loss'], optimizer=configs['model']['optimizer'])
+		self.model.compile(loss=configs['model']['loss'], optimizer=configs['model']['optimizer'], metrics=['accuracy'])
+
+		self.model.summary()
 
 		print('[Model] Model Compiled')
 		timer.stop()
@@ -86,10 +89,18 @@ class Model():
 		print('[Model] Training Completed. Model saved as %s' % save_fname)
 		timer.stop()
 
+	def eval_test(self, x_test,  y_test, verbose):
+		return self.model.evaluate(x_test, y_test, verbose=verbose)
+
+	def eval_test2(self, x_test,  y_test, verbose):
+		score = self.model.evaluate(x_test, y_test, verbose=verbose)
+		return score[0], score[1]
+
 	def predict_point_by_point(self, data):
 		#Predict each timestep given the last sequence of true data, in effect only predicting 1 step ahead each time
 		print('[Model] Predicting Point-by-Point...')
 		predicted = self.model.predict(data)
+		print("predicted.size =", predicted.size)
 		predicted = np.reshape(predicted, (predicted.size,))
 		return predicted
 

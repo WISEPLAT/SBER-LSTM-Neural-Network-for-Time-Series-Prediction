@@ -44,11 +44,21 @@ def main():
     model.build_model(configs)
     x, y = data.get_train_data(
         seq_len=configs['data']['sequence_length'],
-        normalise=configs['data']['normalise']
+        normalise=configs['data']['normalise'] #False
     )
 
+    x2, y2 = data.get_train_data2(
+        seq_len=configs['data']['sequence_length'],
+        normalise=configs['data']['normalise']  #False
+    )
+
+    print("train data shapes: ", x.shape, y.shape)
+    print("train data shapes: ", x2.shape, y2.shape)
+    #print(x, y);print(x2, y2); exit(1)
+
+
     '''
-    # in-memory training
+    # in-memory training'''
     model.train(
         x,
         y,
@@ -71,12 +81,32 @@ def main():
         batch_size=configs['training']['batch_size'],
         steps_per_epoch=steps_per_epoch,
         save_dir=configs['model']['save_dir']
-    )
+    )'''
 
     x_test, y_test = data.get_test_data(
         seq_len=configs['data']['sequence_length'],
-        normalise=configs['data']['normalise']
+        normalise=configs['data']['normalise'] #False
     )
+
+    print("test data shapes: ", x_test.shape, y_test.shape)
+    #print(x_test, y_test); exit(1)
+    #print(x_test, y_test, x_test.shape, y_test.shape)
+
+    model.eval_test(x_test,  y_test, verbose=2)
+
+    _ev = model.eval_test2(x_test, y_test, verbose=0)
+    print("### ", _ev, " ###")
+
+    last_data_2_predict = data.get_last_data(-(configs['data']['sequence_length']-1), configs['data']['normalise'])
+    print("*** ", -(configs['data']['sequence_length']-1), last_data_2_predict.size, "***")
+
+    predictions2 = model.predict_point_by_point(last_data_2_predict)
+    #print(predictions2)
+
+    last_data_2_predict_prices = data.get_last_data(-(configs['data']['sequence_length']-1), False)
+    last_data_2_predict_prices_1st_price = last_data_2_predict_prices[0][0]
+    predicted_price = data.de_normalise_predicted(last_data_2_predict_prices_1st_price, predictions2[0])
+    print("!!!!!", predictions2, predicted_price, "!!!!!")
 
     # predictions = model.predict_sequences_multiple(x_test, configs['data']['sequence_length'], configs['data']['sequence_length'])
     # predictions = model.predict_sequence_full(x_test, configs['data']['sequence_length'])
