@@ -34,6 +34,16 @@ def main():
     configs = json.load(open('config.json', 'r'))
     if not os.path.exists(configs['model']['save_dir']): os.makedirs(configs['model']['save_dir'])
 
+    # import pandas as pd
+    # dataframe = pd.read_csv(os.path.join('data', configs['data']['filename']), sep=",")
+    # dataframe.rename(
+    #     columns={"<DATE>": "Date", "<TIME>": "Time", "<OPEN>": "Open", "<HIGH>": "High", "<LOW>": "Low",
+    #              "<CLOSE>": "Close", "<VOL>": "Volume"}, inplace=True)
+    # dataframe['Date'] = pd.to_datetime(dataframe['Date'], format='%Y%m%d')
+    # dataframe = dataframe.drop('Time', 1)
+    # print(dataframe)
+    # exit(1)
+
     data = DataLoader(
         os.path.join('data', configs['data']['filename']),
         configs['data']['train_test_split'],
