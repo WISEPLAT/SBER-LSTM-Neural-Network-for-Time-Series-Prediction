@@ -1,4 +1,4 @@
-#pip install numpy pandas tensorflow-gpu keras matplotlib
+#pip install numpy pandas tensorflow-gpu keras matplotlib mysqlclient
 
 import os
 import json
@@ -45,9 +45,28 @@ def main():
     # exit(1)
 
     data = DataLoader(
-        os.path.join('data', configs['data']['filename']),
-        configs['data']['train_test_split'],
-        configs['data']['columns']
+        split=configs['data']['train_test_split'],
+        cols=configs['data']['columns']
+    )
+
+    # to load data from CSV files
+    # data.load_data_from_csv(
+    #     filename=os.path.join('data', configs['data']['filename']),
+    #
+    # )
+
+    ticket = "SBER"
+    timeframe = "D1"
+
+    # to load data from MySQL DB
+    data.load_data_from_db(
+        host=configs['data']['db_host'],
+        user=configs['data']['db_login'],
+        passwd=configs['data']['db_pass'],
+        db=configs['data']['db_name'],
+        ticket=ticket,  # "SBER",
+        timeframe=timeframe,  # "D1",
+        how_many_bars=5700
     )
 
     model = Model()
@@ -74,7 +93,8 @@ def main():
         y,
         epochs = configs['training']['epochs'],
         batch_size = configs['training']['batch_size'],
-        save_dir = configs['model']['save_dir']
+        save_dir = configs['model']['save_dir'],
+        timeframe=timeframe
     )
     '''
 
@@ -90,7 +110,8 @@ def main():
         epochs=configs['training']['epochs'],
         batch_size=configs['training']['batch_size'],
         steps_per_epoch=steps_per_epoch,
-        save_dir=configs['model']['save_dir']
+        save_dir=configs['model']['save_dir'],
+        timeframe=timeframe
     )'''
 
     x_test, y_test = data.get_test_data(

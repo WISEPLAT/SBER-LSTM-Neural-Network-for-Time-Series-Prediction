@@ -7,7 +7,11 @@
 		],
 		"sequence_length": 50,
 		"train_test_split": 0.85,
-		"normalise": true
+		"normalise": true,
+		"db_host" : "192.168.0.200",
+		"db_login" : "sharesuser",
+		"db_pass" : "SomePassword123",
+		"db_name" : "shares"
 	},
 	"training": {
 		"epochs": 2,
