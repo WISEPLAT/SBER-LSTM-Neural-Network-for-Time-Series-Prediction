@@ -1,4 +1,7 @@
 #pip install numpy pandas tensorflow-gpu keras matplotlib mysqlclient
+#pip install -U tensorboard
+#tensorboard dev upload --logdir logs_SBER --name "SBER My latest experiment" --description "SBER Simple comparison of several hyperparameters"
+#tensorboard.exe --logdir tf_logs --port=5555
 
 import os
 import json
@@ -128,23 +131,23 @@ def main():
     _ev = model.eval_test2(x_test, y_test, verbose=0)
     print("### ", _ev, " ###")
 
-    last_data_2_predict = data.get_last_data(-(configs['data']['sequence_length']-1), configs['data']['normalise'])
-    print("*** ", -(configs['data']['sequence_length']-1), last_data_2_predict.size, "***")
-
-    predictions2 = model.predict_point_by_point(last_data_2_predict)
-    #print(predictions2)
-
-    last_data_2_predict_prices = data.get_last_data(-(configs['data']['sequence_length']-1), False)
-    last_data_2_predict_prices_1st_price = last_data_2_predict_prices[0][0]
-    predicted_price = data.de_normalise_predicted(last_data_2_predict_prices_1st_price, predictions2[0])
-    print("!!!!!", predictions2, predicted_price, "!!!!!")
-
-    # predictions = model.predict_sequences_multiple(x_test, configs['data']['sequence_length'], configs['data']['sequence_length'])
-    # predictions = model.predict_sequence_full(x_test, configs['data']['sequence_length'])
-    predictions = model.predict_point_by_point(x_test)
-
-    # plot_results_multiple(predictions, y_test, configs['data']['sequence_length'])
-    plot_results(predictions, y_test)
+    # last_data_2_predict = data.get_last_data(-(configs['data']['sequence_length']-1), configs['data']['normalise'])
+    # print("*** ", -(configs['data']['sequence_length']-1), last_data_2_predict.size, "***")
+    #
+    # predictions2 = model.predict_point_by_point(last_data_2_predict)
+    # #print(predictions2)
+    #
+    # last_data_2_predict_prices = data.get_last_data(-(configs['data']['sequence_length']-1), False)
+    # last_data_2_predict_prices_1st_price = last_data_2_predict_prices[0][0]
+    # predicted_price = data.de_normalise_predicted(last_data_2_predict_prices_1st_price, predictions2[0])
+    # print("!!!!!", predictions2, predicted_price, "!!!!!")
+    #
+    # # predictions = model.predict_sequences_multiple(x_test, configs['data']['sequence_length'], configs['data']['sequence_length'])
+    # # predictions = model.predict_sequence_full(x_test, configs['data']['sequence_length'])
+    # predictions = model.predict_point_by_point(x_test)
+    #
+    # # plot_results_multiple(predictions, y_test, configs['data']['sequence_length'])
+    # plot_results(predictions, y_test)
 
 
 if __name__ == '__main__':

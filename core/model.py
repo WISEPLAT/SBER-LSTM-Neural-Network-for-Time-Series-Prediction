@@ -7,12 +7,15 @@ from core.utils import Timer
 from keras.layers import Dense, Activation, Dropout, LSTM
 from keras.models import Sequential, load_model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
+import tensorflow as tf
 
 class Model():
 	"""A class for an building and inferencing an lstm model"""
 
 	def __init__(self):
 		self.model = Sequential()
+		self.log_dir = "tf_logs"
+		self.writer = None
 
 	def load_model(self, filepath):
 		print('[Model] Loading model from file %s' % filepath)
@@ -50,9 +53,11 @@ class Model():
 		timer.start()
 		print('[Model] Training Started')
 		print('[Model] %s epochs, %s batch size' % (epochs, batch_size))
-		
+
+		self.writer = tf.summary.create_file_writer(self.log_dir)
 		save_fname = os.path.join(save_dir, '%s-e%s_%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S'), str(epochs), timeframe))
 		callbacks = [
+			tf.keras.callbacks.TensorBoard(log_dir=self.log_dir, histogram_freq=1),
 			EarlyStopping(monitor='val_loss', patience=2),
 			ModelCheckpoint(filepath=save_fname, monitor='val_loss', save_best_only=True)
 		]
@@ -64,6 +69,7 @@ class Model():
 			callbacks=callbacks
 		)
 		self.model.save(save_fname)
+		self.writer.close()
 
 		print('[Model] Training Completed. Model saved as %s' % save_fname)
 		timer.stop()
@@ -73,9 +79,11 @@ class Model():
 		timer.start()
 		print('[Model] Training Started')
 		print('[Model] %s epochs, %s batch size, %s batches per epoch' % (epochs, batch_size, steps_per_epoch))
-		
+
+		self.writer = tf.summary.create_file_writer(self.log_dir)
 		save_fname = os.path.join(save_dir, '%s-e%s_%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S'), str(epochs), timeframe))
 		callbacks = [
+			tf.keras.callbacks.TensorBoard(log_dir=self.log_dir, histogram_freq=1),
 			ModelCheckpoint(filepath=save_fname, monitor='loss', save_best_only=True)
 		]
 		self.model.fit_generator(
@@ -85,6 +93,7 @@ class Model():
 			callbacks=callbacks,
 			workers=1
 		)
+		self.writer.close()
 		
 		print('[Model] Training Completed. Model saved as %s' % save_fname)
 		timer.stop()

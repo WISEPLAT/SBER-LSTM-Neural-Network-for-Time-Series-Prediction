@@ -1,6 +1,6 @@
 {
 	"data": {
-		"filename": "SBER_000101_220128.csv",
+		"filename": "SBER_790101_220205.csv",
 		"columns": [
 			"Close",
 			"Volume"
@@ -14,7 +14,7 @@
 		"db_name" : "shares"
 	},
 	"training": {
-		"epochs": 2,
+		"epochs": 10,
 		"batch_size": 32
 	},
 	"model": {
