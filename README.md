@@ -4,11 +4,11 @@ LSTM built using the Keras Python package to predict time series steps and seque
 
 My realization for SBER price prediction.
 
-####We need to normalize data properly in order to get right prediction.
+#### We need to normalize data properly in order to get right prediction.
 
 We can use multi dimensional data input for our model.
 
-####Please be aware! This model is only DRAFT - not real for stock price predictions.
+#### Please be aware! This model is only DRAFT - not real for stock price predictions.
 
 Wait for the next video with the Full review of structure for model.
 
